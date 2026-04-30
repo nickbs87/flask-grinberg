@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Users List{% endblock %}
+
+{% block content %}
+    <h2>Users</h2>
+    <table border="1" cellpading="5">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        {% if user.role == 'admin' %}
+                            <strong>{{ user.name }}</strong>
+                        {% else %}
+                            {{ user.name }}
+                        {% endif %}
+                    </td>
+                    <td>{{ user.age }}</td>
+                    <td>{{ user.role|capitalize }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>                   
+    </table>
+{% endblock %}
