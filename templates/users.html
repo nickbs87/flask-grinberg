@@ -2,7 +2,7 @@
 
 {% block title %}Users List{% endblock %}
 
-{% block content %}
+{% block page_content %}
     <h2>Users</h2>
     <table border="1" cellpading="5">
         <thead>
@@ -17,9 +17,9 @@
                 <tr>
                     <td>
                         {% if user.role == 'admin' %}
-                            <strong>{{ user.name }}</strong>
+                            <strong><a href="{{ url_for('user', name=user.name) }}">{{ user.name }}</a></strong>
                         {% else %}
-                            {{ user.name }}
+                            <a href="{{ url_for('user', name=user.name) }}">{{ user.name }}</a>
                         {% endif %}
                     </td>
                     <td>{{ user.age }}</td>
