@@ -1,25 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Default Title{% endblock %}</title>
-</head>
-<body>
-    <header>
-        <h1>My Flask App</h1
-        <nav>
-            <a href="/">Home</a>"
-            <a href="/user/Nick">User</a>
-        </nav>
-    </header>
-    <hr>
-    <main>
-        {% block content %} {% endblock %}
-    </main>
-    <hr>
-    <footer>
-        <p>&copy; 2026 Nick</p>
-    </footer>   
-</body>
-</html>
+{% extends "bootstrap/base.html" %}
+
+
+{% block title %}My Flask App{% endblock %}
+
+
+{% block navbar %}
+
+<div class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{{ url_for('index') }}">My Flask App</a>                
+        </div>
+        
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('user', name='Nick') }}">Nick's Profile</a><li>
+                <li><a href="{{ url_for('users') }}">All users</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %} 
+
+<div class="container">
+    {% block page_content %}{% endblock %}
+</div>
+
+{% endblock %}
