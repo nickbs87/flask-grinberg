@@ -1,13 +1,27 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, session, url_for, flash
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
+import os
+from dotenv import load_dotenv
 
 
-
+load_dotenv()
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+
+class NameForm(FlaskForm):
+    name = StringField("What's your name", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+    
+
 
 
 @app.route('/')
@@ -42,6 +56,23 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'), 500
+
+
+
+@app.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+    form = NameForm()
+    if form.validate_on_submit():
+        old_name = session.get('name')
+        if old_name is not None and old_name != form.name.data:
+            flash('Looks like you have changed your name')
+        session['name'] = form.name.data
+        return redirect(url_for('feedback'))
+    
+    return render_template('feedback.html', form=form, name=session.get('name'))
+
+
+
     
 
 if __name__ == "__main__":
