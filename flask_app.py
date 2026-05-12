@@ -11,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail
 from flask_mail import Message
+from threading import Thread
 
 
 load_dotenv()
@@ -68,6 +69,11 @@ class User(db.Model):
 
 
 
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
 def send_email(to, subject, template, **kwargs):
     msg = Message(
         app.config['MAIL_SUBJECT_PREFIX'] + subject,
@@ -76,8 +82,9 @@ def send_email(to, subject, template, **kwargs):
     )
     msg.body = render_template(template + ".txt", **kwargs)
     msg.html = render_template(template + ".html", **kwargs)
-    mail.send(msg)
-
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+    return thr
 
 
 @app.shell_context_processor
