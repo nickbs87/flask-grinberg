@@ -3,13 +3,14 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField, EmailField
+from wtforms.validators import DataRequired, Email
 import os
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail
+from flask_mail import Message
 
 
 load_dotenv()
@@ -27,6 +28,7 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+app.config['MAIL_SUBJECT_PREFIX'] = "[Sprinkles] " 
 
 
 
@@ -39,6 +41,7 @@ mail = Mail(app)
 
 class NameForm(FlaskForm):
     name = StringField("What's your name", validators=[DataRequired()])
+    email = EmailField("What's your email", validators=[DataRequired()])
     submit = SubmitField("Submit")
     
     
@@ -62,6 +65,19 @@ class User(db.Model):
     
     def __repr__(self):
         return f"<User {self.username!r}>"
+
+
+
+def send_email(to, subject, template, **kwargs):
+    msg = Message(
+        app.config['MAIL_SUBJECT_PREFIX'] + subject,
+        sender = app.config['MAIL_DEFAULT_SENDER'],
+        recipients= [to]             
+    )
+    msg.body = render_template(template + ".txt", **kwargs)
+    msg.html = render_template(template + ".html", **kwargs)
+    mail.send(msg)
+
 
 
 @app.shell_context_processor
@@ -110,10 +126,19 @@ def feedback():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
-            user = User(username=form.name.data)
+            user = User(username=form.name.data,
+                        email=form.email.data
+                        )
             db.session.add(user)
             db.session.commit()
             session["Known"] = False
+            send_email(
+                user.email,
+                f"Welcome {user.username}! ",
+                'mail/new_user',
+                user = user
+            )
+            
         else:
             session["Known"] = True
         session["name"] = form.name.data
