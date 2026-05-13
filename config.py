@@ -24,3 +24,28 @@ class Config:
     @staticmethod
     def init_app(app):
         pass
+    
+class DevelopmentConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{base_dir / "data-dev.sqlite"}'
+    
+    
+class ProductionConfig(Config):
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or \
+        f'sqlite:///{base_dir / "data.sqlite"}'
+    
+    
+
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'        
+        
+        
+        
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'testing': TestingConfig,
+    'default': DevelopmentConfig
+    }
