@@ -24,20 +24,21 @@
 <div class="navbar navbar-default" role="navigation">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="{{ url_for('index') }}">My Flask App</a>                
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">My Flask App</a>
         </div>
-        
+
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('index') }}">Home</a></li>
-                <li><a href="{{ url_for('user', name='Nick') }}">Nick's Profile</a></li>
-                <li><a href="{{ url_for('users') }}">All users</a></li>
+                <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                <li><a href="{{ url_for('main.user', name='Nick') }}">Nick's Profile</a></li>
+                <li><a href="{{ url_for('main.users') }}">All users</a></li>
+                <li><a href="{{ url_for('main.feedback') }}">Feedback</a></li>
             </ul>
         </div>
     </div>
 {% endblock %}
 
-{% block content %} 
+{% block content %}
 
 <div class="container">
     {% for message in get_flashed_messages() %}
