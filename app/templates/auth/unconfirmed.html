@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+
+{% block page_content %}
+<h1>Dear {{ current_user.username }}</h1>
+
+<h3>
+    You have not confirmed your account yet!
+
+    <p>
+        Before you can access this site you need to confirm your account.
+        Check your inbox, you should have received an email with a confirmation link.
+
+        Need another confirmation email?
+        <a href="{{ url_for('auth.resend_confirmation', token=token) }}">
+            Click here
+        </a>
+    </p>
+</h3>
+
+<p>
+    Sincerely,
+    The Flasky Team
+</p>
+
+Note: replies to this email address are not monitored.
+
+{% endblock page_content %}

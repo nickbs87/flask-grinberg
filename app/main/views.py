@@ -13,8 +13,7 @@ from ..email import send_email
 
 @main.route('/')
 def index():
-    fruits = ['banana', 'apple', 'cherry', 'date', 'elderberry']
-    return render_template('index.html', fruits=fruits,
+    return render_template('index.html',
                            current_time=datetime.utcnow())
 
 
@@ -53,12 +52,12 @@ def feedback():
                 'mail/new_user',
                 user=existing_user
             )
-            
+
         else:
             session["Known"] = True
         session["name"] = form.name.data
-        
+
         return redirect(url_for('.feedback'))
-    
+
     return render_template('feedback.html', form=form, name=session.get('name'),
                            Known= session.get("Known", False))

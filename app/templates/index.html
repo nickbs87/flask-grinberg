@@ -3,13 +3,13 @@
 {% block title %}Home{% endblock %}
 
 {% block page_content %}
-    <h2>Hello World!</h2>
-    <p>My favorite fruits:</p>
-    <ul>
-        {% for fruit in fruits %}
-            <li>{{ fruit }}</li>
-        {% endfor %}
-    </ul>
+    <h2>Hello,
+        {% if current_user.is_authenticated %}
+            {{ current_user.username }}
+        {% else %}
+            Stranger
+        {% endif %}
+    </h2>
 
 
 
