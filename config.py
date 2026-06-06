@@ -18,31 +18,33 @@ class Config:
     MAIL_USERNAME = os.getenv('MAIL_USERNAME')
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
-    FLASKY_MAIL_SUBJECT_PREFIX = "[FLASKY] " 
-    
-    
+    FLASKY_MAIL_SUBJECT_PREFIX = "[FLASKY] "
+    FLASKY_ADMIN = os.getenv('FLASKY_ADMIN')
+
+
+
     @staticmethod
     def init_app(app):
         pass
-    
+
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = f'sqlite:///{base_dir / "data-dev.sqlite"}'
-    
-    
+
+
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or \
         f'sqlite:///{base_dir / "data.sqlite"}'
-    
-    
+
+
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'        
-        
-        
-        
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+
+
+
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,

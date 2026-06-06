@@ -5,9 +5,10 @@ from flask import render_template, session, redirect, url_for
 from .import main
 from .forms import NameForm
 from .. import db
-from ..models import User
+from ..models import User, Permission
 from ..email import send_email
-
+from ..decorators import permission_required, admin_required
+from flask_login import login_required
 
 
 
@@ -61,3 +62,18 @@ def feedback():
 
     return render_template('feedback.html', form=form, name=session.get('name'),
                            Known= session.get("Known", False))
+
+
+
+@main.route('/admin')
+@login_required
+@admin_required
+def for_admins_only():
+    return "For administrators only!"
+
+
+@main.route('/moderator')
+@login_required
+@permission_required(Permission.MODERATE)
+def for_moderators_only():
+    return "For comment Moderators"
