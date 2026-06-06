@@ -4,6 +4,7 @@ from flask_login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from flask import current_app, flash
+from datetime import datetime
 
 
 
@@ -83,6 +84,11 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
     confirmed = db.Column(db.Boolean, default=False)
+    name = db.Column(db.String(64))
+    location = db.Column(db.String(64))
+    about_me = db.Column(db.Text())
+    member_since = db.Column(db.DateTime(), default = datetime.utcnow)
+    last_seen = db.Column(db.Datetime(), default = datetime.utcnow)
 
     @property
     def password(self):
@@ -118,6 +124,11 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+        db.session.commit()
 
     def __repr__(self):
         return f"<User {self.username!r}>"
