@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from flask import render_template, session, redirect, url_for
+from flask import render_template, session, redirect, url_for, flash
 
 from .import main
-from .forms import NameForm
+from .forms import NameForm, EditProfileForm
 from .. import db
 from ..models import User, Permission
 from ..email import send_email
 from ..decorators import permission_required, admin_required
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 
 
@@ -63,6 +63,24 @@ def feedback():
 
     return render_template('feedback.html', form=form, name=session.get('name'),
                            Known= session.get("Known", False))
+
+
+@main.route('/edit-profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.name = form.name.data
+        current_user.location = form.location.data
+        current_user.about_me = form.about_me.data
+        db.session.add(current_user._get_current_object())
+        db.session.commit()
+        flash("Your profile has been updated")
+        return redirect(url_for('.user', username=current_user.username))
+    form.name.data = current_user.name
+    form.location.data = current_user.location
+    form.about_me.data = current_user.about_me
+    return render_template('edit-profile.html', form=form)
 
 
 
