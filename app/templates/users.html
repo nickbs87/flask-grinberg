@@ -17,15 +17,15 @@
                 <tr>
                     <td>
                         {% if user.role == 'admin' %}
-                            <strong><a href="{{ url_for('main.user', name=user.name) }}">{{ user.name }}</a></strong>
+                            <strong><a href="{{ url_for('main.user', username=user.username) }}">{{ user.name }}</a></strong>
                         {% else %}
-                            <a href="{{ url_for('main.user', name=user.name) }}">{{ user.name }}</a>
+                            <a href="{{ url_for('main.user', username=user.username) }}">{{ user.name }}</a>
                         {% endif %}
                     </td>
                     <td>{{ user.age }}</td>
                     <td>{{ user.role|capitalize }}</td>
                 </tr>
             {% endfor %}
-            </tbody>                   
+            </tbody>
     </table>
 {% endblock %}
