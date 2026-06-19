@@ -4,6 +4,7 @@
 
 {% block title %}Home{% endblock %}
 
+
 {% block page_content %}
     <h2>Hello,
         {% if current_user.is_authenticated %}
@@ -23,3 +24,7 @@
     </div>
 {% endblock %}
 
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}
