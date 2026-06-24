@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Flasky - {{ title }} {{ user.username}} {% endblock title %}
+
+{% block page_content %}
+{% import "_macros.html" as macros %}
+
+{{ macros.pagination_widget(pagination, endpoint, username=user.username) }}
+
+<h1>{{ title }} {{ user.username }}</h1>
+
+<table>
+    <tr>
+        <th>Username</th>
+        <th>Since</th>
+    </tr>
+        {% for follow in follows %}
+        <tr>
+            <td><img class='img-rounded profile-thumbnail' src='{{ follow['user'].gravatar(size=15) }}'>
+            {{ follow['user'].username }}</td>
+            <td>{{ moment(follow['timestamp']).fromNow() }}</td>
+        </tr>
+        {% endfor %}
+</table>
+
+{% endblock page_content %}
