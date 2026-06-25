@@ -6,6 +6,7 @@
 
 
 {% block page_content %}
+
     <h2>Hello,
         {% if current_user.is_authenticated %}
             {{ current_user.username }}
@@ -18,10 +19,18 @@
         {{ wtf.quick_form(form) }}
     {% endif %}
 </div>
+    <a href="{{ url_for('.show_all') }}"
+        class="btn btn-default">All</a>
+
+    <a href="{{ url_for('.show_followed') }}"
+        class="btn btn-default">Followed</a>
+
     {% include '_posts.html' %}
     <div class="pagination">
         {{ macros.pagination_widget(pagination, '.index') }}
+
     </div>
+
 {% endblock %}
 
 {% block scripts %}
