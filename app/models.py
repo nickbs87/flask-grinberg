@@ -154,6 +154,21 @@ class User(UserMixin, db.Model):
         return True
 
 
+    def generate_auth_token(self):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'id': self.id}, salt='api-token')
+
+
+    @staticmethod
+    def verify_auth_token(token, expiration=3600):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token, salt='api-token', max_age=expiration)
+        except (SignatureExpired, BadSignature):
+            return None
+        return User.query.get(data['id'])
+
+
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)

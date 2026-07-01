@@ -4,6 +4,7 @@ from ..models import User
 from .errors import unauthorized, forbidden
 from . import api
 
+
 auth = HTTPBasicAuth()
 
 
