@@ -3,11 +3,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-from flask import current_app, flash, request
+from flask import current_app, flash, request, url_for
 from datetime import datetime
 import hashlib
 from markdown import markdown
 import bleach
+from app.exceptions import ValidationError
 
 
 class Permission:
@@ -76,6 +77,7 @@ class Role(db.Model):
             db.session.add(role)
         db.session.commit()
 
+
 class Follow(db.Model):
     __tablename__ = "follows"
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'),
@@ -113,6 +115,18 @@ class User(UserMixin, db.Model):
                                 cascade='all, delete-orphan')
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
+
+    def to_json(self):
+        json_user = {
+            'url': url_for('api.get_user', id=self.id),
+            'username': self.username,
+            'member_since': self.member_since,
+            'last_seen': self.last_seen,
+            'posts_url': url_for('api.get_user_posts', id=self.id),
+            'followed_posts_url': url_for('api.get_user_followed_posts', id=self.id),
+            'post_count': self.posts.count()
+        }
+        return json_user
 
     @property
     def followed_posts(self):
@@ -152,6 +166,21 @@ class User(UserMixin, db.Model):
         self.confirmed = True
         db.session.add(self)
         return True
+
+
+    def generate_auth_token(self):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'id': self.id}, salt='api-token')
+
+
+    @staticmethod
+    def verify_auth_token(token, expiration=3600):
+        s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token, salt='api-token', max_age=expiration)
+        except (SignatureExpired, BadSignature):
+            return None
+        return User.query.get(data['id'])
 
 
     def ping(self):
@@ -196,9 +225,6 @@ class User(UserMixin, db.Model):
             url=url, hash=hash, size=size, default=default, rating=rating)
 
 
-
-
-
     def can(self, perm):
         return self.role is not None and self.role.has_permission(perm)
 
@@ -238,6 +264,28 @@ class Post(db.Model):
     body_html = db.Column(db.Text)
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
 
+
+    def to_json(self):
+        json_post = {
+            'url': url_for('api.get_post',id=self.id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp' : self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'comments_url': url_for('api.get_post_comments', id=self.id),
+            'comments_count': self.comments.count()
+        }
+        return json_post
+
+
+    @staticmethod
+    def from_json(json_post):
+        body = json_post.get('body')
+        if body is None or body == '':
+            raise ValidationError('post does not have a body')
+        return Post(body=body)
+
+
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = [
@@ -259,6 +307,19 @@ class Comment(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     disabled = db.Column(db.Boolean)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+
+
+    def to_json(self):
+        json_comment = {
+            'url': url_for('api.get_comment', id=self.id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'post_url': url_for('api.get_post', id=self.post_id),
+            'disabled': self.disabled
+        }
+        return json_comment
 
 
     @staticmethod
