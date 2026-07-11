@@ -309,6 +309,19 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
 
 
+    def to_json(self):
+        json_comment = {
+            'url': url_for('api.get_comment', id=self.id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'post_url': url_for('api.get_post', id=self.post_id),
+            'disabled': self.disabled
+        }
+        return json_comment
+
+
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = [
