@@ -10,7 +10,17 @@ from ..models import User, Permission, Role, Post, Comment
 from ..email import send_email
 from ..decorators import permission_required, admin_required
 from flask_login import login_required, current_user
+from flask_sqlalchemy.record_queries import get_recorded_queries
 
+
+
+@main.after_app_request
+def after_request(response):
+    for query in get_recorded_queries():
+        if query.duration >= current_app.config['FLASKY_SLOW_DB_QUERY_TIME']:
+            current_app.logger.warning(f'Slow query: {query.statement} \nDuration: {query.duration}\
+                \nContext: {query.location}\n')
+    return response
 
 
 @main.route('/', methods=['GET', 'POST'])
