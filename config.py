@@ -38,6 +38,7 @@ class Config:
         stream_handler.setLevel(logging.WARNING)
         app.logger.addHandler(stream_handler)
 
+
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = f'sqlite:///{base_dir / "data-dev.sqlite"}'
@@ -73,7 +74,8 @@ class ProductionConfig(Config):
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
 
-
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 class TestingConfig(Config):
     TESTING = True
