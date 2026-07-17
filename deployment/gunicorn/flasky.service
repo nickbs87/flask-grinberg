@@ -1,0 +1,18 @@
+[Unit]
+Description=Gunicorn instance to serve flask-grinberg
+After=network.target
+
+[Service]
+User=deploy
+Group=www-data
+WorkingDirectory=/home/deploy/flask-grinberg
+Environment="PATH=/home/deploy/flask-grinberg/.venv/bin"
+EnvironmentFile=/home/deploy/flask-grinberg/.env
+ExecStart=/home/deploy/flask-grinberg/.venv/bin/gunicorn \
+    --workers 3 \
+    --bind unix:flasky.sock \
+    -m 007 \
+    flask_app:app
+
+[Install]
+WantedBy=multi-user.target
